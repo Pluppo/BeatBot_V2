@@ -7,16 +7,9 @@ take input from YouTube, SoundCloud and virtually every platform `youtube-dl` su
 Some CTF tools are also include
 
 ## Getting started
-### Docker
-```shell
-git clone https://github.com/ZanyMonk/docker-beatbot beatbot
-cd beatbot
-docker-compose up
-```
 
-### Boomer
 ```shell
-git clone https://github.com/s0ca/BeatBot_V2 beatbot
+git clone https://github.com/Pluppo/BeatBot_V2 beatbot
 cd beatbot
 pip install -r requirement.txt
 edit .env.sample with your creds and save it as .env
