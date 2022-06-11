@@ -72,7 +72,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
         data = await loop.run_in_executor(None, partial)
 
         if data is None:
-            raise YTDLError('Impossible de trouver quoi que ce soit qui corresponde à `{}`'.format(search))
+            raise YTDLError('Could not find anything matching `{}`'.format(search))
 
         if 'entries' not in data:
             process_info = data
@@ -84,14 +84,14 @@ class YTDLSource(discord.PCMVolumeTransformer):
                     break
 
             if process_info is None:
-                raise YTDLError('Impossible de trouver quoi que ce soit qui corresponde à `{}`'.format(search))
+                raise YTDLError('Could not find anything matching `{}`'.format(search))
 
         webpage_url = process_info['webpage_url']
         partial = functools.partial(cls.ytdl.extract_info, webpage_url, download=False)
         processed_info = await loop.run_in_executor(None, partial)
 
         if processed_info is None:
-            raise YTDLError('Impossible de récupérer `{}`'.format(webpage_url))
+            raise YTDLError('Could not fetch `{}`'.format(webpage_url))
 
         if 'entries' not in processed_info:
             info = processed_info
@@ -101,7 +101,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
                 try:
                     info = processed_info['entries'].pop(0)
                 except IndexError:
-                    raise YTDLError('Impossible de récupérer les correspondances pour `{}`'.format(webpage_url))
+                    raise YTDLError('Could not find `{}`'.format(webpage_url))
 
         return cls(ctx, discord.FFmpegPCMAudio(info['url'], **cls.FFMPEG_OPTIONS), data=info)
 
@@ -221,18 +221,12 @@ class VoiceState:
                         self.current = await self.songs.get()
                 except asyncio.TimeoutError:
                     ciao = [
-                        'Ciao bande de nazes! <:s0cul:730551865334562834>\n(2 minutes d\'inactivité)',
-                        'Vers l\'infini et au delà! <:butplug:646778028071845949>\n(2 minutes d\'inactivité)',
-                        'Bon, bah, je me tire 🚽\n(2 minutes d\'inactivité)',
-                        'A plus dans le bus! 🖕\n(2 minutes d\'inactivité)',
-                        'Hasta la (windows) vista, Baby! 🏍️\n(2 minutes d\'inactivité)',
-                        'I\'ll be back! 🔫\n(2 minutes d\'inactivité)',
-                        'J\'ai autre chose à foutre que de rester planter là à vous mater vous toucher la bite... 🧻\n(2 minutes d\'inactivité)',
-                        'Bon je me fais un bréxit, si vous me cherchez je suis pas loin! <:ah:647451727867674628>\n(2 minutes d\'inactivité)'
+                        'Hasta la (windows) vista, Baby! 🏍️\n(inactive for 2 minutes)',
+                        'I\'ll be back! 🔫\n(inactive for 2 minutes)'
                     ]
                     reponse_ciao = random.choice(ciao)
                     await self._ctx.send(reponse_ciao)
-                    print('Déconnection pour inactivité')
+                    print('Disconnect due to timeout')
                     self.bot.loop.create_task(self.stop())
                     self.exists = False
                     return
@@ -322,7 +316,7 @@ class Music(commands.Cog):
 
     def cog_check(self, ctx: commands.Context):
         if not ctx.guild:
-            raise commands.NoPrivateMessage("Tu m'as pris pour ton DJ perso ? Pas de ça en DM !.")
+            raise commands.NoPrivateMessage("Do you think I'm your private DJ? None of this in DM's")
 
         return True
 
@@ -346,7 +340,7 @@ class Music(commands.Cog):
     @commands.command(name='summon')
     async def _summon(self, ctx: commands.Context, *, channel: discord.VoiceChannel = None):
         if not channel and not ctx.author.voice:
-            await ctx.send("Tu n'es dans aucun canal vocal ...")
+            await ctx.send("You are not in any voice channel ...")
             return False
 
         destination = channel or ctx.author.voice.channel
@@ -362,22 +356,22 @@ class Music(commands.Cog):
     @commands.command(name='leave', aliases=['stop', 'stp', 'tg'])
     async def _leave(self, ctx: commands.Context):
         if not ctx.voice_state.voice:
-            return await ctx.send('Non connecté à un canal vocal.')
+            return await ctx.send('Not connected to a voice channel.')
 
         await ctx.voice_state.stop()
         await self.bot.change_presence(status=discord.Status.idle)
         del self.voice_states[ctx.guild.id]
-        print(f"Déconnection à la demande de l'utilisateur")
+        print(f"Disconnected by user request")
 
     # COMMANDE VOLUME
     @commands.command(aliases=['vol', 'v'])
     async def volume(self, ctx, *, volume: float):
         if ctx.voice_client is None:
-            return await ctx.send("Non connecté à un canal vocal.")
+            return await ctx.send("Not connected to a voice channel.")
 
         ctx.voice_client.source.volume = volume / 100
-        await ctx.send("Volume réglé à {}%".format(volume))
-        print("Volume réglé à {}%".format(volume))
+        await ctx.send("Volume {}%".format(volume))
+        print("Volume {}%".format(volume))
 
     # COMMANDE NOW
     @commands.command(name='now', aliases=['nw', 'playing'])
@@ -406,7 +400,7 @@ class Music(commands.Cog):
     async def _skip(self, ctx: commands.Context):
 
         if not ctx.voice_state.is_playing:
-            return await ctx.send('Aucune lecture en cours...')
+            return await ctx.send('Nothing is currently playing...')
 
         voter = ctx.message.author
         if voter == ctx.voice_state.current.requester:
@@ -421,16 +415,16 @@ class Music(commands.Cog):
                 await ctx.message.add_reaction('⏭')
                 ctx.voice_state.skip()
             else:
-                await ctx.send('Vote ajouté, actuellement **{}/3**'.format(total_votes))
+                await ctx.send('Vote added, currently **{}/3**'.format(total_votes))
 
         else:
-            await ctx.send('Tu as déjà voté')
+            await ctx.send('You voted already')
 
     # COMMANDE LIST
     @commands.command(name='queue', aliases=['list', 'll', 'ls'])
     async def _queue(self, ctx: commands.Context, *, page: int = 1):
         if len(ctx.voice_state.songs) == 0:
-            return await ctx.send("File d'attente vide.")
+            return await ctx.send("Queue empty.")
 
         items_per_page = 20
         pages = math.ceil(len(ctx.voice_state.songs) / items_per_page)
@@ -451,7 +445,7 @@ class Music(commands.Cog):
     async def _shuffle(self, ctx: commands.Context):
 
         if len(ctx.voice_state.songs) == 0:
-            return await ctx.send("File d'attente vide.")
+            return await ctx.send("Queue empty.")
 
         ctx.voice_state.songs.shuffle()
         await ctx.message.add_reaction('✅')
@@ -462,7 +456,7 @@ class Music(commands.Cog):
         """Removes a song from the queue at a given index."""
 
         if len(ctx.voice_state.songs) == 0:
-            return await ctx.send("File d'attente vide.")
+            return await ctx.send("Queue empty.")
 
         ctx.voice_state.songs.remove(index - 1)
         await ctx.message.add_reaction('✅')
@@ -472,11 +466,11 @@ class Music(commands.Cog):
     async def _removelast(self, ctx: commands.Context):
 
         if len(ctx.voice_state.songs) == 0:
-            return await ctx.send("File d'attente vide.")
+            return await ctx.send("Queue empty.")
 
         ctx.voice_state.songs.removelast()
         await ctx.message.add_reaction('✅')
-        await ctx.send("Suppression du dernier morceau ajouté")
+        await ctx.send("Last track removed")
 
     # COMMANDE LOOP (Bug volume)
     @commands.command(name='loop')
@@ -486,7 +480,7 @@ class Music(commands.Cog):
         """
 
         if not ctx.voice_state.is_playing:
-            return await ctx.send("Aucune lecture en cours.")
+            return await ctx.send("Nothing is currently playing.")
 
         # Inverse boolean value to loop and unloop.
         ctx.voice_state.loop = not ctx.voice_state.loop
