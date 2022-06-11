@@ -11,7 +11,7 @@ Some CTF tools are also include
 ```shell
 git clone https://github.com/Pluppo/BeatBot_V2 beatbot
 cd beatbot
-pip install -r requirement.txt
+python3 -m pip install -r requirements.txt
 edit .env.sample with your creds and save it as .env
 nohup python3 beatbot.py
 ```
