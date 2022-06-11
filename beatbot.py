@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """
 BeatBot 2.0
-Authors: s0ca, zM_
+Authors: s0ca, zM_, Pluppo
 """
 
 import os
@@ -18,7 +18,7 @@ bot = commands.Bot(command_prefix=settings.PREFIX, case_insensitive=True,
                    description="**__BeatBot__ - Bot de stream musical**")
 
 # Each extension corresponds to a file within the cogs directory.  Remove from the list to take away the functionality.
-extensions = ['music2', 'ctftime', 'encoding', 'cipher', 'utility']
+extensions = ['music2']
 
 
 @bot.event
@@ -50,10 +50,10 @@ async def on_command_error(ctx, error):
             colour=discord.Colour.red(),
             title=f"RTFM!"
         )
-        nop_e.add_field(name="Apprendre à taper...",
-                        value=f"Si on m'avait filé un euro à\nchaque fois que tu te plantes,\nje serais riche.",
+        nop_e.add_field(name="Learn to type...",
+                        value=f"If I got a euro\neach time you made a mistake,\nI'd be rich.",
                         inline=True)
-        nop_e.add_field(name="Un petit coup de pouce ?", value=f"```css\n!help```")
+        nop_e.add_field(name="Need a hand ?", value=f"```css\n!help```")
         await ctx.send(embed=nop_e)
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Missing a required argument.  Try `!help`")
