@@ -107,15 +107,15 @@ class MusicPlayer:
 
     def create_embed(self):
         embed = (discord.Embed(colour=discord.Colour.green(),
-                               title='En cours de lecture',
+                               title='Now playing',
                                description='```css\n{0.source.title}\n```'.format(self),
                                timestamp=datetime.now(),
                                color=discord.Color.blurple())
-                 .add_field(name='Durée', value=self.source.duration, inline=False)
-                 .add_field(name='Demandé par', value=self.requester.mention)
-                 .add_field(name='Lien direct', value='[Ici]({0.source.url})'.format(self))
+                 .add_field(name='Length', value=self.source.duration, inline=False)
+                 .add_field(name='Requested by', value=self.requester.mention)
+                 .add_field(name='Direct link', value='[Here]({0.source.url})'.format(self))
                  .set_thumbnail(url=self.source.thumbnail)
-                 .set_footer(text='BeatBot Beta 1.0.7'))
+                 .set_footer(text='BeatBot V2'))
 
         return embed    
 
