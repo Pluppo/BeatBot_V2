@@ -298,9 +298,10 @@ class Music(commands.Cog):
 
         for embed in message.embeds:
             if embed.video:
-                print('VIDEO', message)
-                await message.add_reaction("🎵")
-                break
+                if ctx.voice_state.voice:
+                    print('VIDEO', message)
+                    await message.add_reaction("🎵")
+                    break
 
     def get_voice_state(self, ctx: commands.Context):
         state = self.voice_states.get(ctx.guild.id)
